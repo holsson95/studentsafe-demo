@@ -64,11 +64,11 @@ async function run() {
 
     console.log('Seeding cohorts...');
     const { rows: cohorts } = await client.query(
-      `INSERT INTO cohorts (name, building_id, alma_tag) VALUES
-        ('Grade 6', $1, 'Grade 6'),
-        ('Grade 7', $1, 'Grade 7'),
-        ('Grade 10', $2, 'Grade 10'),
-        ('Grade 11', $2, 'Grade 11')
+      `INSERT INTO cohorts (name, grade_level, building_id, alma_tag) VALUES
+        ('Grade 6', 'Grade 6', $1, 'Grade 6'),
+        ('Grade 7', 'Grade 7', $1, 'Grade 7'),
+        ('Grade 10', 'Grade 10', $2, 'Grade 10'),
+        ('Grade 11', 'Grade 11', $2, 'Grade 11')
        RETURNING id`,
       [buildingA, buildingB]
     );
@@ -137,22 +137,23 @@ async function run() {
     );
 
     console.log('Seeding demo users (one per access level)...');
+    // role values are constrained by users_role_check to exactly these five strings.
     const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
     const demoUsers = [
-      { name: 'Ava AppAdmin',   email: 'appadmin@demo.local',   role: 'admin',      access_level: 0, building_id: null,     is_admin: true  },
-      { name: 'Cara Counselor', email: 'counselor@demo.local',  role: 'counselor',  access_level: 1, building_id: buildingA, is_admin: false },
-      { name: 'Cole Coordinator', email: 'coordinator@demo.local', role: 'coordinator', access_level: 2, building_id: null, is_admin: false },
-      { name: 'Dana District',  email: 'district@demo.local',   role: 'district',   access_level: 3, building_id: null,     is_admin: false },
-      { name: 'Tom Teacher',    email: 'teacher@demo.local',    role: 'teacher',    access_level: 4, building_id: buildingA, is_admin: false },
+      { name: 'Ava AppAdmin',     email: 'appadmin@demo.local',    role: 'admin',                    access_level: 0, building_id: null },
+      { name: 'Cara Counselor',   email: 'counselor@demo.local',   role: 'guidance counselor',        access_level: 1, building_id: buildingA },
+      { name: 'Cole Coordinator', email: 'coordinator@demo.local', role: 'child protection officer',  access_level: 2, building_id: null },
+      { name: 'Dana District',    email: 'district@demo.local',    role: 'ehs director',              access_level: 3, building_id: null },
+      { name: 'Tom Teacher',      email: 'teacher@demo.local',     role: 'teacher',                   access_level: 4, building_id: buildingA },
     ];
 
     const userIds = {};
     for (const u of demoUsers) {
       const { rows } = await client.query(
-        `INSERT INTO users (name, email, password_hash, role, school_id, building_id, access_level, is_active, is_admin, failed_login_attempts)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, true, $8, 0)
+        `INSERT INTO users (name, email, password_hash, role, school_id, building_id, access_level, is_active, failed_login_attempts)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, true, 0)
          RETURNING id`,
-        [u.name, u.email, passwordHash, u.role, schoolId, u.building_id, u.access_level, u.is_admin]
+        [u.name, u.email, passwordHash, u.role, schoolId, u.building_id, u.access_level]
       );
       userIds[u.role] = rows[0].id;
     }
@@ -161,11 +162,11 @@ async function run() {
     const studentRows = [
       ['Alex', 'Demo', 'Al', cohort6, natUS],
       ['Sam', 'Example', 'Sammy', cohort6, natTH],
-      ['Jordan', 'Fictional', null, cohort7, natUK],
+      ['Jordan', 'Fictional', 'Jo', cohort7, natUK],
       ['Riley', 'Placeholder', 'Ry', cohort7, natAU],
-      ['Casey', 'Sample', null, cohort10, natCA],
+      ['Casey', 'Sample', 'Cas', cohort10, natCA],
       ['Morgan', 'Testcase', 'Mo', cohort10, natUS],
-      ['Taylor', 'Mockdata', null, cohort11, natTH],
+      ['Taylor', 'Mockdata', 'Tay', cohort11, natTH],
       ['Jamie', 'Notreal', 'Jam', cohort11, natUK],
     ];
     const studentIds = [];
@@ -193,15 +194,14 @@ async function run() {
         `INSERT INTO cases (
            first_name, last_name, nickname, cohort, nationality_id, reason, status,
            category_id, entry_date, created_by, building_id, school_id, case_type_id,
-           severity_id, student_id, privacy_policy_acknowledged, privacy_policy_acknowledged_at,
-           created_at
+           severity_id, student_id, created_at
          )
          SELECT first_name, last_name, nickname, cohort, nationality_id, $2, $3,
                 $4, CURRENT_DATE - (random() * 60)::int, $5, building_id, school_id, $6,
-                $7, id, true, NOW(), NOW() - (random() * 60 || ' days')::interval
+                $7, id, NOW() - (random() * 60 || ' days')::interval
          FROM students WHERE id = $1
          RETURNING id`,
-        [studentIds[c.student], c.reason, c.status, c.category, userIds.counselor, c.type, c.sev]
+        [studentIds[c.student], c.reason, c.status, c.category, userIds['guidance counselor'], c.type, c.sev]
       );
       const caseId = rows[0].id;
 
@@ -213,7 +213,7 @@ async function run() {
       await client.query(
         `INSERT INTO case_status_history (case_id, changed_by, old_status, new_status, comment)
          VALUES ($1, $2, NULL, $3, 'Case opened.')`,
-        [caseId, userIds.counselor, c.status]
+        [caseId, userIds['guidance counselor'], c.status]
       );
     }
 
@@ -242,7 +242,7 @@ async function run() {
     await client.query(
       `INSERT INTO notifications (receiver_id, message, created_by_id, type, is_read)
        VALUES ($1, 'Welcome to the StudentSafe demo — this is a sample notification.', NULL, 'event', false)`,
-      [userIds.counselor]
+      [userIds['guidance counselor']]
     );
 
     await client.query('COMMIT');

@@ -13,7 +13,5 @@ CREATE TABLE IF NOT EXISTS school_domains (
   school_id INTEGER NOT NULL REFERENCES schools(id)
 );
 
--- Seed: demo.local maps to school_id 2 (matches server/seed/demoData.js)
-INSERT INTO school_domains (domain, school_id)
-VALUES ('demo.local', 2)
-ON CONFLICT (domain) DO NOTHING;
+-- school_domains is seeded by server/seed/demoData.js (after schools exist),
+-- not here — this migration only needs to run before schools have any rows.
