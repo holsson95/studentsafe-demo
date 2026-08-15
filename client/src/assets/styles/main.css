@@ -1,0 +1,23 @@
+/* ================================
+   MAIN CSS - StudentSafe Demo
+   ================================
+
+   This is the master stylesheet that imports all CSS modules.
+   Import order matters: variables first, then base, then components, then utilities.
+*/
+
+/* Design Tokens (colors, typography, spacing, etc.) */
+@import './variables.css';
+
+/* Base Styles (resets, body, links, etc.) */
+@import './base.css';
+
+/* Component Styles */
+@import './typography.css';
+@import './buttons.css';
+@import './forms.css';
+@import './tables.css';
+@import './modals.css';
+
+/* Utility Classes (spacing, flexbox, etc.) */
+@import './utilities.css';

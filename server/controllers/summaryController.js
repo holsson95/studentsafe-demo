@@ -1,0 +1,1 @@
+const summaryModel = require('../models/summaryModel');

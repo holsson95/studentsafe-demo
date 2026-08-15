@@ -1,0 +1,175 @@
+/* ================================
+   DESIGN TOKENS - StudentSafe Demo
+   ================================ */
+
+:root {
+  /* -------------------------
+     COLORS
+     ------------------------- */
+
+  /* Brand */
+  --color-primary: #0a2d80;
+  --color-primary-hover: #123a97;
+  --color-primary-light: #3366b8;
+
+  /* Backgrounds */
+  --color-bg-page: #f5f4ff;
+  --color-bg-card: #ffffff;
+  --color-bg-muted: #f8f9fa;
+  --color-bg-hover: rgba(194, 194, 194, 0.2);
+
+  /* Text */
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  --color-text-inverse: #ffffff;
+
+  /* Borders */
+  --color-border: #e5e7f3;
+  --color-border-light: #e5e7eb;
+  --color-border-dark: #374151;
+
+  /* Severity (Status Pills) */
+  --color-severity-high: #ef4444;
+  --color-severity-high-bg: #fee2e2;
+  --color-severity-medium: #f59e0b;
+  --color-severity-medium-bg: #fef3c7;
+  --color-severity-low: #3b82f6;
+  --color-severity-low-bg: #dbeafe;
+
+  /* Status */
+  --color-success: #22c55e;
+  --color-success-bg: #d1fae5;
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fef3c7;
+  --color-error: #ef4444;
+  --color-error-bg: #fee2e2;
+
+  /* Accents */
+  --color-accent-purple: #7c3aed;
+  --color-accent-purple-bg: #ede9fe;
+  --color-accent-info: #3b82f6;
+  --color-accent-info-bg: #dbeafe;
+
+  /* Sidebar */
+  --sidebar-gradient-top: #123a97;
+  --sidebar-gradient-mid: #0a2d80;
+  --sidebar-gradient-bottom: #081f5c;
+  --sidebar-active-bg: #1e4fb8;
+  --sidebar-active-hover-bg: rgba(255, 255, 255, 0.08);
+  --sidebar-active-radius: 14px;
+  --sidebar-icon-active: #ffffff;
+  --sidebar-icon-inactive: rgba(232, 238, 249, 0.85);
+  --sidebar-text-inactive: #ffffff;
+  --sidebar-divider: rgba(255, 255, 255, 0.08);
+  --sidebar-user-card-bg: #15398f;
+  --sidebar-shadow: rgba(8, 31, 92, 0.25);
+  --color-notification-badge: #2563eb;
+
+  /* Graph Colors (keep existing) */
+  --graph-color-1: #0a2d80;
+  --graph-color-2: #316099;
+  --graph-color-3: #6ea3c5;
+  --graph-color-4: #88aec9;
+  --graph-color-5: #8080b9;
+
+  /* -------------------------
+     TYPOGRAPHY
+     ------------------------- */
+
+  --font-family: 'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont,
+                 'Segoe UI', Roboto, sans-serif;
+
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.75rem;   /* 28px */
+
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Legacy variables (for backwards compatibility) */
+  --font-family-main: var(--font-family);
+  --font-header: var(--font-size-xl);
+  --font-body: var(--font-size-base);
+  --font-bold: var(--font-weight-bold);
+  --font-regular: var(--font-weight-regular);
+  --font-body-preview-color: rgba(18, 20, 26, 0.7);
+
+  /* Legacy color mappings */
+  --color-background: var(--color-bg-page);
+  --color-text: var(--color-text-primary);
+  --severity-low: var(--color-severity-low);
+  --severity-medium: var(--color-severity-medium);
+  --severity-high: var(--color-severity-high);
+  --status-success: var(--color-success);
+  --status-warning: var(--color-warning);
+  --status-error: var(--color-error);
+
+  /* -------------------------
+     SPACING
+     ------------------------- */
+
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+
+  /* -------------------------
+     BORDERS & SHADOWS
+     ------------------------- */
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-modal: 0 4px 20px rgba(0, 0, 0, 0.15);
+
+  /* Card Shadows */
+  --shadow-card: 0px 4px 16px rgba(10, 45, 128, 0.08);
+  --shadow-card-hover: 0 8px 16px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+  --shadow-card-elevated: 0 6px 20px rgba(0, 0, 0, 0.08), 0 3px 8px rgba(0, 0, 0, 0.04);
+  --shadow-card-elevated-hover: 0 8px 24px rgba(0, 0, 0, 0.1), 0 4px 10px rgba(0, 0, 0, 0.06);
+
+  /* -------------------------
+     TRANSITIONS
+     ------------------------- */
+
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  /* -------------------------
+     Z-INDEX SCALE
+     ------------------------- */
+
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 500;
+  --z-modal-backdrop: 900;
+  --z-modal: 1000;
+  --z-tooltip: 1100;
+}

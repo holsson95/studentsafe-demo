@@ -1,0 +1,1 @@
+const settingsModel = require('../models/settingsModel');
