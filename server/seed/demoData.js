@@ -83,13 +83,16 @@ async function run() {
     const [natUS, natUK, natTH, natAU, natCA] = nationalities.map(r => r.id);
 
     console.log('Seeding case_type, severity, sex lookups...');
-    // id 3 is a catch-all sentinel used by filter queries — keep it present.
+    // Case types are always exactly these three. id 3 ("Both") is a sentinel:
+    // filter queries match `case_type_id = ANY([requested_type, 3])`, so a case
+    // tagged "Both" always shows up on both the counseling and child protection
+    // dashboards/reports, regardless of which one is selected.
     const { rows: caseTypes } = await client.query(`
       INSERT INTO case_type (name) VALUES
-        ('Academic'), ('Wellbeing'), ('General')
+        ('Child Protection'), ('Counseling'), ('Both')
       RETURNING id
     `);
-    const [typeAcademic, typeWellbeing, typeGeneral] = caseTypes.map(r => r.id);
+    const [typeChildProtection, typeCounseling, typeBoth] = caseTypes.map(r => r.id);
 
     const { rows: severities } = await client.query(`
       INSERT INTO severity (name) VALUES ('LOW'), ('MEDIUM'), ('HIGH')
@@ -106,19 +109,24 @@ async function run() {
       `INSERT INTO categories (name, case_type_id, is_active) VALUES
         ('Academic Performance', $1, true),
         ('Attendance', $1, true),
-        ('Peer Relationships', $2, true),
-        ('Emotional Wellbeing', $2, true)
+        ('Peer Relationships', $1, true),
+        ('Emotional Wellbeing', $1, true),
+        ('Safety Concern', $2, true),
+        ('Suspected Abuse or Neglect', $2, true)
        RETURNING id`,
-      [typeAcademic, typeWellbeing]
+      [typeCounseling, typeChildProtection]
     );
-    const [catAcademic, catAttendance, catPeer, catEmotional] = categories.map(r => r.id);
+    const [catAcademic, catAttendance, catPeer, catEmotional, catSafety, catAbuseNeglect] = categories.map(r => r.id);
 
     const subcategorySeed = [
-      ['Falling grades', catAcademic, typeAcademic],
-      ['Missed assignments', catAcademic, typeAcademic],
-      ['Frequent absences', catAttendance, typeAcademic],
-      ['Conflict with peers', catPeer, typeWellbeing],
-      ['Anxiety', catEmotional, typeWellbeing],
+      ['Falling grades', catAcademic, typeCounseling],
+      ['Missed assignments', catAcademic, typeCounseling],
+      ['Frequent absences', catAttendance, typeCounseling],
+      ['Conflict with peers', catPeer, typeCounseling],
+      ['Anxiety', catEmotional, typeCounseling],
+      ['Unsafe home environment', catSafety, typeChildProtection],
+      ['Left unsupervised', catSafety, typeChildProtection],
+      ['Signs of neglect', catAbuseNeglect, typeChildProtection],
     ];
     const subcategories = [];
     for (const [name, category_id, case_type_id] of subcategorySeed) {
@@ -183,11 +191,14 @@ async function run() {
 
     console.log('Seeding cases...');
     const caseSeed = [
-      { student: 0, category: catAcademic, sub: 0, type: typeAcademic, sev: sevMed,  status: 'in progress', reason: 'Grades have dropped noticeably this term.' },
-      { student: 1, category: catAttendance, sub: 2, type: typeAcademic, sev: sevLow,  status: 'resolved',    reason: 'Several unexplained absences in the past month.' },
-      { student: 2, category: catPeer, sub: 3, type: typeWellbeing, sev: sevMed,  status: 'on hold',     reason: 'Ongoing conflict with a group of classmates.' },
-      { student: 3, category: catEmotional, sub: 4, type: typeWellbeing, sev: sevHigh, status: 'in progress', reason: 'Reports of persistent anxiety before exams.' },
-      { student: 4, category: catAcademic, sub: 1, type: typeAcademic, sev: sevLow,  status: 'resolved',    reason: 'Missing several homework submissions.' },
+      { student: 0, category: catAcademic,  sub: 0, type: typeCounseling,      sev: sevMed,  status: 'in progress', reason: 'Grades have dropped noticeably this term.' },
+      { student: 1, category: catAttendance, sub: 2, type: typeCounseling,      sev: sevLow,  status: 'resolved',    reason: 'Several unexplained absences in the past month.' },
+      { student: 2, category: catPeer,       sub: 3, type: typeCounseling,      sev: sevMed,  status: 'on hold',     reason: 'Ongoing conflict with a group of classmates.' },
+      { student: 3, category: catEmotional,  sub: 4, type: typeCounseling,      sev: sevHigh, status: 'in progress', reason: 'Reports of persistent anxiety before exams.' },
+      { student: 4, category: catSafety,     sub: 5, type: typeChildProtection, sev: sevHigh, status: 'in progress', reason: 'Concerns raised about conditions at home.' },
+      { student: 5, category: catAbuseNeglect, sub: 7, type: typeChildProtection, sev: sevMed, status: 'on hold',    reason: 'Possible signs of neglect noticed by staff.' },
+      { student: 6, category: catSafety,     sub: 6, type: typeChildProtection, sev: sevLow,  status: 'resolved',    reason: 'Student was found unsupervised after hours.' },
+      { student: 7, category: catAcademic,   sub: 1, type: typeBoth,            sev: sevMed,  status: 'in progress', reason: 'Missing assignments alongside a welfare concern raised by a teacher.' },
     ];
     for (const c of caseSeed) {
       const { rows } = await client.query(

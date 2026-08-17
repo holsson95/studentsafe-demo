@@ -11,8 +11,8 @@
         <div class="input-group">
           <label>Case Type</label>
           <select v-model="localCaseTypeId">
-            <option :value="1">Counseling</option>
-            <option :value="2">Child Protection</option>
+            <option :value="1">Child Protection</option>
+            <option :value="2">Counseling</option>
             <option :value="3">Both</option>
           </select>
         </div>

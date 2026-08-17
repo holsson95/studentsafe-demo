@@ -26,8 +26,8 @@
                 <label>Case Type</label>
                 <select v-model="entry.case_type_id">
                   <option disabled value="">Select type</option>
-                  <option :value="1">Counseling</option>
-                  <option :value="2">Child Protection</option>
+                  <option :value="1">Child Protection</option>
+                  <option :value="2">Counseling</option>
                   <option :value="3">Both</option>
                 </select>
               </div>

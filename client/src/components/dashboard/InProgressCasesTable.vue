@@ -68,7 +68,7 @@ const cases = ref<CaseRow[]>([]);
 const viewAllLink = computed(() => ({ path: '/reports', query: { caseType: props.caseTypeId, status: 'in progress' } }));
 
 const displayedCases = computed(() => {
-  let filtered = cases.value.filter(c => c.case_type_id === props.caseTypeId && (c.status || '').toLowerCase() === 'in progress');
+  let filtered = cases.value.filter(c => (c.case_type_id === props.caseTypeId || c.case_type_id === 3) && (c.status || '').toLowerCase() === 'in progress');
   if (props.schoolId && props.schoolId > 1) {
     filtered = filtered.filter(c => c.school_id === props.schoolId);
   }
