@@ -24,6 +24,21 @@
             <button type="submit">Sign In</button>
           </form>
 
+          <div class="demo-accounts">
+            <p class="demo-accounts-label">Or try a demo account (password fills automatically):</p>
+            <div class="demo-account-buttons">
+              <button
+                v-for="account in demoAccounts"
+                :key="account.email"
+                type="button"
+                class="demo-account-btn"
+                @click="fillDemoAccount(account)"
+              >
+                {{ account.label }}
+              </button>
+            </div>
+          </div>
+
           <div class="divider">
             <span>or</span>
           </div>
@@ -49,6 +64,14 @@ export default {
       errorMessage: '',
       hasError: false,
       errorTrigger: 0,
+      demoAccounts: [
+        { label: 'App Admin',           email: 'appadmin@demo.local' },
+        { label: 'Guidance Counselor',  email: 'counselor@demo.local' },
+        { label: 'Child Protection Officer', email: 'coordinator@demo.local' },
+        { label: 'EHS Director',        email: 'district@demo.local' },
+        { label: 'Teacher',             email: 'teacher@demo.local' },
+      ],
+      DEMO_PASSWORD: 'DemoPass123!',
     };
   },
   mounted() {
@@ -60,6 +83,11 @@ export default {
     }, 800);
   },
   methods: {
+    fillDemoAccount(account) {
+      this.email = account.email;
+      this.password = this.DEMO_PASSWORD;
+      this.hasError = false;
+    },
     loadGoogleScript() {
       if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) return;
       const script = document.createElement('script');
@@ -283,6 +311,44 @@ button:hover {
   outline: none;
   box-shadow: 0 0 0 3px rgba(15, 62, 140, 0.2);
   transform: scale(1.02);
+}
+
+.demo-accounts {
+  margin-top: 1.2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #eee;
+}
+
+.demo-accounts-label {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 0 0 0.6rem;
+}
+
+.demo-account-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.demo-account-btn {
+  width: auto;
+  padding: 0.4rem 0.9rem;
+  background-color: #fff;
+  color: #0f3e8c;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: 1px solid #0f3e8c;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.demo-account-btn:hover {
+  background-color: #0f3e8c;
+  color: white;
+  box-shadow: none;
+  transform: none;
 }
 
 .divider {
