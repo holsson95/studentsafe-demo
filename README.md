@@ -1,5 +1,9 @@
 # StudentSafe (Portfolio Demo)
 
+**Live demo:** [studentsafe-demo-1.onrender.com](https://studentsafe-demo-1.onrender.com)
+(hosted on Render's free tier — the first request after a period of inactivity can take
+30–60s to wake the server up, so give it a moment on first load)
+
 A **portfolio demo** of a real-world school case-management system originally built to help
 guidance counselors and coordinators track student welfare cases. This copy has had all real
 organization branding, student data, and external integrations removed or replaced with
@@ -19,25 +23,34 @@ any external network call.
 
 ## Demo login credentials
 
-Password for every account below is `DemoPass123!`.
+The login page has a **"try a demo account" row of buttons** — one per role below — that
+fills the email/password fields for you, so you don't need to type or copy anything. Click
+a button, then click Sign In.
+
+If you'd rather log in manually (or you're hitting the API directly), the password for
+every account below is `DemoPass123!`.
 
 | Access level | Role | Email |
 |---|---|---|
 | 0 | App Admin | `appadmin@demo.local` |
 | 1 | Guidance Counselor | `counselor@demo.local` |
-| 2 | School Coordinator | `coordinator@demo.local` |
-| 3 | District | `district@demo.local` |
+| 2 | Child Protection Officer | `coordinator@demo.local` |
+| 3 | EHS Director | `district@demo.local` |
 | 4 | Teacher | `teacher@demo.local` |
 
 ## Running locally
 
 ### 1. Database
 
-Start Postgres however you like (Docker Compose is provided) and run the migrations in
-`server/migrations/` in order (001 → 006).
+Start Postgres however you like — Docker Compose is provided for local Postgres, or point
+at a hosted instance (this demo runs on [Neon](https://neon.tech)'s free tier). Either way,
+run every file in `server/migrations/` **in order, starting with `000_init_schema.sql`**
+(the base schema), then `001` → `006`:
 
 ```sh
 docker compose up -d postgres
+psql "$DATABASE_URL" -f server/migrations/000_init_schema.sql
+for f in server/migrations/00[1-6]_*.sql; do psql "$DATABASE_URL" -f "$f"; done
 ```
 
 ### 2. Server
@@ -45,7 +58,9 @@ docker compose up -d postgres
 ```sh
 cd server
 cp .env.example .env
-# fill in DB_* to match your local Postgres, and set a random JWT_SECRET
+# For local Postgres: fill in DB_*. For hosted Postgres (Neon/Render/etc.): set
+# DATABASE_URL instead (it takes priority — see server/db.js). Either way, set a
+# random JWT_SECRET.
 npm install
 node seed/demoData.js   # wipes and repopulates the DB with fictional demo data
 npm run dev
