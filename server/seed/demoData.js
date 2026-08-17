@@ -31,7 +31,8 @@ async function run() {
         sn_people_present, session_notes,
         cases, students, alma_students, sync_logs,
         subcategories, categories, cohorts, nationalities,
-        users, school_domains, buildings, alma_school_app_id, schools
+        users, school_domains, buildings, alma_school_app_id, schools,
+        case_type, severity, sex
       RESTART IDENTITY CASCADE
     `);
 
