@@ -3,7 +3,6 @@ const router = express.Router();
 const notificationsController = require('../controllers/notificationsController');
 const { authenticate} = require('../middleware/authMiddleware');
 
-router.post('/', notificationsController.notifyCaseSubmitted);
 router.get('/', authenticate, notificationsController.getUserNotif);
 router.delete('/:id', authenticate, notificationsController.deleteNotif);
 router.delete('/delete-all-read', authenticate, notificationsController.deleteAllReadNotif);

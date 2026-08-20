@@ -29,13 +29,13 @@ const accessLevel = computed(() => {
 });
 const route = useRoute();
 
-const isOnboarding = computed(() => route.path === '/');
-const isAdminPage = computed(() => route.path === '/admin');
+const isOnboarding = computed(() => route.path === '/login');
+const isAdminPage = computed(() => route.path === '/' && accessLevel.value === 0);
 
 const isFullScreen = computed(() => isOnboarding.value || isAdminPage.value);
 
 const showSidebar = computed(() => {
-  // No sidebar on onboarding or admin page for level 0
+  // No sidebar on the login page or the admin landing view
   if (isOnboarding.value || isAdminPage.value) return false;
   // Show sidebar for all other routes/users
   return true;

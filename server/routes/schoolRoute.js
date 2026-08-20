@@ -5,7 +5,7 @@ const { authenticate} = require('../middleware/authMiddleware');
 
 
 router.get('/', authenticate, schoolController.getAllSchools);
-router.get('/:id', schoolController.fetchSchoolByID); 
+router.get('/:id', authenticate, schoolController.fetchSchoolByID);
 router.get('/:schoolId/buildings', authenticate, schoolController.getBuildingsBySchool);
 
 module.exports = router;

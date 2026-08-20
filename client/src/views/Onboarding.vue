@@ -111,16 +111,7 @@ export default {
         const res = await api.post('/auth/google', { credential: response.credential });
         localStorage.setItem('token', res.data.token);
         localStorage.setItem('user', JSON.stringify(res.data.user));
-        const user = res.data.user;
-        if (user.access_level === 0) {
-          this.$router.push('/admin');
-        } else if (user.access_level === 1) {
-          this.$router.push('/dashboard');
-        } else if (user.access_level === 4) {
-          this.$router.push('/file-report');
-        } else {
-          this.$router.push('/dashCPO');
-        }
+        this.$router.push('/');
       } catch (err) {
         this.hasError = true;
         this.errorMessage = err.response?.data?.message || 'Google sign-in failed. Try again.';
@@ -137,16 +128,7 @@ export default {
         localStorage.setItem("token", res.data.token)
         localStorage.setItem("user", JSON.stringify(res.data.user))
 
-        const user = res.data.user;
-        if(user.access_level === 0){
-          this.$router.push('/admin');
-        } else if (user.access_level === 1) {
-        this.$router.push('/dashboard');
-        } else if (user.access_level === 4){
-          this.$router.push('/file-report');
-        } else {
-        this.$router.push('/dashCPO');
-        }
+        this.$router.push('/');
       } catch (err) {
         this.hasError = true;
         this.errorMessage = err.response?.data.message || 'Invalid email or password. Try again.';

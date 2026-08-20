@@ -14,7 +14,7 @@
 
     <!-- Navigation -->
     <nav class="nav">
-      <RouterLink v-if="accessLevel === 1 || accessLevel === 2 || accessLevel === 3" :to="dashboardRoute" class="nav-item" active-class="active">
+      <RouterLink v-if="accessLevel === 1 || accessLevel === 2 || accessLevel === 3" to="/" class="nav-item" active-class="active">
         <Icon icon="line-md:home-simple" class="icon"/>
         Dashboard
       </RouterLink>
@@ -100,7 +100,6 @@ const { showLogoutConfirm, requestLogout, performLogout } = useLogout();
 
 const userName = ref('');
 const role = ref('');
-const dashboardRoute = ref('/dashboard'); // default for level 1
 const accessLevel = ref(0);
 const search = ref('');
 let timer: ReturnType<typeof setTimeout>;
@@ -135,9 +134,6 @@ onMounted(async () => {
     userName.value = user.name;
     role.value = user.role;
     accessLevel.value = user.access_level;
-    if (user.access_level !== 1) {
-      dashboardRoute.value = '/dashCPO'; 
-    }
   } catch (err) {
     console.error('Failed to fetch data', err);
   }

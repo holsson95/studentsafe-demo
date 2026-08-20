@@ -1,6 +1,6 @@
 // src/router/index.ts
 import { createRouter, createWebHistory } from 'vue-router'
-import DashboardView from '@/views/DashboardView.vue'
+import DashboardHome from '@/views/DashboardHome.vue'
 import StudentHistory from '@/views/StudentHistory.vue'
 import ReportList from '@/views/ReportList.vue'
 import NotificationsView from '@/views/NotificationsView.vue'
@@ -12,7 +12,6 @@ import Onboarding from '@/views/Onboarding.vue'
 import AdminPage from '@/views/AdminPage.vue'
 import treatmentPlan from '@/views/TreatmentPlan.vue'
 import sessionNotes from '@/views/SessionNotes.vue'
-import dashboardCPO from '@/views/DashboardCPO.vue'
 import TreatmentPlanDetails from '@/views/TreatmentPlanDetails.vue'
 import SessionNotesDetails from '@/views/SessionNotesDetails.vue'
 import SearchResult from '@/views/SearchResults.vue'
@@ -22,9 +21,8 @@ import GenerateReportSummary from '@/components/reports/GenerateReportSummary.vu
 import CPOReportSummary from '@/components/reports/CPOReportSummary.vue'
 
 const routes = [
-{ path: '/', name: 'Onboarding', component: Onboarding },
-  { path: '/dashboard', name: 'Dashboard', component: DashboardView, meta: { requiresAuth: true}},
-  { path: '/dashCPO', name: 'dashCPO', component: dashboardCPO, meta: { requiresAuth: true}},
+{ path: '/login', name: 'Onboarding', component: Onboarding },
+  { path: '/', name: 'DashboardHome', component: DashboardHome, meta: { requiresAuth: true}},
   { path: '/search', name: 'SearchResult', component: SearchResult, meta: { requiresAuth: true} },
   { path: '/students', name: 'StudentHistory', component: StudentHistory, meta: { requiresAuth: true} },
   { path: '/reports', name: 'ReportList', component: ReportList, meta: { requiresAuth: true} },
@@ -52,11 +50,14 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
   const user = JSON.parse(localStorage.getItem('user') || 'null')
 
+  if (to.path === '/login' && token) {
+    return next({ path: '/' })
+  }
   if(to.meta.requiresAuth && !token) {
-    return next({ path: '/'})
+    return next({ path: '/login'})
   }
   if (to.meta.requiresAdmin && (!user || user.access_level !== 0)) {
-    return next({ path: '/dashboard'})
+    return next({ path: '/'})
   }
   next();
 })

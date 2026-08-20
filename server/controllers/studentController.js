@@ -65,12 +65,24 @@ setInterval(() => {
 
 const getStudentById = async(req, res) => {
     const { id } = req.params;
+    const { access_level, school_id, building_id } = req.user;
 
     try{
         const student = await studentModel.getStudentById(id);
         if(!student){
             return res.status(404).json({ message: 'Student not found' });
         }
+
+        if (access_level === 0) {
+            return res.status(403).json({ message: 'App admin cannot access student data' });
+        } else if (access_level === 1 && student.building_id !== building_id) {
+            return res.status(404).json({ message: 'Student not found' });
+        } else if (access_level === 2 && student.school_id !== school_id) {
+            return res.status(404).json({ message: 'Student not found' });
+        } else if (![1, 2, 3].includes(access_level)) {
+            return res.status(403).json({ message: 'Access level not recognized' });
+        }
+
         res.json(student);
     } catch (err) {
         res.status(500).json({error: 'Failed to fetch student data', err});

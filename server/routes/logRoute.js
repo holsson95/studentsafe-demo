@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const logController = require('../controllers/logsController');
-const { authenticate } = require('../middleware/authMiddleware');
+const { authenticate, authorizeAdmin } = require('../middleware/authMiddleware');
 
-router.get('/cases', authenticate, logController.getCaseLogs);
-router.get('/users', authenticate, logController.getUserLogs);
+router.get('/cases', authenticate, authorizeAdmin, logController.getCaseLogs);
+router.get('/users', authenticate, authorizeAdmin, logController.getUserLogs);
 
 module.exports = router;
