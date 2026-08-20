@@ -618,7 +618,7 @@ const getTotalCounts = async (filter = {}, user_id = null, access_level = null) 
   }
   // Add access level specific filters
   if (access_level === 1) {
-    baseQuery += `AND created_by = $${i}`;
+    baseQuery += ` AND created_by = $${i}`;
     params.push(user_id);
     i += 1;
   } else if (access_level === 2) {

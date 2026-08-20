@@ -17,13 +17,18 @@
         </thead>
         <tbody>
           <tr v-for="c in paginatedCases" :key="c.id" @click="handleRowClick(c.id)" class="clickable-row">
-            <td>{{ c.first_name }} {{ c.last_name }}</td>
+            <td>
+              <div class="student-cell">
+                <span class="avatar">{{ initial(c.first_name) }}</span>
+                {{ c.first_name }} {{ c.last_name }}
+              </div>
+            </td>
             <td>{{ c.nickname }}</td>
             <td><span class="severity-pill" :class="(c.severity_name || '').toLowerCase()">{{ c.severity_name }}</span></td>
             <td>{{ c.category_name }}</td>
             <td>{{ c.nationality_name }}</td>
             <td>{{ c.cohort_name }}</td>
-            <td>{{ c.status }}</td>
+            <td><StatusBadge :status="c.status" /></td>
             <td>{{ formatDate(c.created_at) }}</td>
             <td>{{ c.created_by_name }}</td>
           </tr>
@@ -60,6 +65,7 @@ import api from '../../services/api'
 import {ref, onMounted, computed, reactive, watch } from 'vue';
 import axios from 'axios'
 import { useRouter } from 'vue-router';
+import StatusBadge from '../common/StatusBadge.vue';
 
 const currentPage = ref(1);
 const rowsPerPage = ref(10);
@@ -170,6 +176,8 @@ const sortTable = (key: string) => {
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString();
 };
+
+const initial = (name: string) => (name || '?').charAt(0).toUpperCase();
 
 const sortedCases = computed(() => {
   let filteredList = [...caseReports.value];
@@ -334,9 +342,10 @@ onMounted(fetchCases);
 
 <style scoped>
 .table-card {
-  background: var(--color-background);
-  border-radius: 12px;
-  padding: 1rem;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -366,24 +375,24 @@ onMounted(fetchCases);
   min-width: 800px; /* Ensure table has a minimum width */
 }
 .case-table th {
-  padding: 1rem 0.75rem;
+  padding: var(--space-3) var(--space-3);
   text-align: left;
-  font-weight: 700;
-  font-size: 1rem;
-  color: var(--color-primary);
-  border-bottom: 2px solid var(--graph-color-3);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
   cursor: pointer;
   user-select: none;
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: var(--color-bg-page);
-  transition: all 0.2s ease;
+  background-color: var(--color-bg-card);
+  transition: color var(--transition-normal), background-color var(--transition-normal);
 }
 
 .case-table th:hover {
-  color: var(--graph-color-5);
-  background: rgba(245, 244, 255, 0.8);
+  color: var(--color-primary);
+  background: var(--color-bg-hover);
 }
 
 .header-content {
@@ -399,24 +408,44 @@ onMounted(fetchCases);
 }
 
 .case-table td {
-  padding: 0.75rem;
+  padding: var(--space-3);
   text-align: left;
-  border-bottom: 1px solid var(--graph-color-4);
+  border-bottom: 1px solid var(--color-border-light);
   white-space: nowrap;
-  color: var(--color-text);
-  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
   vertical-align: top;
-  transition: background-color 0.2s ease; /* Add transition for smooth effect */
+  transition: background-color var(--transition-normal);
+}
+
+.student-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-accent-info-bg);
+  color: var(--color-accent-info);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xs);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 /* Row hover effect */
 .clickable-row {
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition-normal);
 }
 
 .clickable-row:hover {
-  background-color: rgba(194, 194, 194, 0.4); /* Subtle hover effect */
+  background-color: var(--color-bg-hover);
 }
 
 .clickable-row:hover td {
@@ -424,15 +453,15 @@ onMounted(fetchCases);
 }
 
 thead {
-  border-bottom: 2px solid var(--graph-color-3);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .severity-pill {
-  padding: 4px 14px;
-  border-radius: 20px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
   color: white;
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-xs);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -440,45 +469,45 @@ thead {
 }
 
 .severity-pill.high {
-  background-color: #d60000;
+  background-color: var(--color-severity-high);
 }
 
 .severity-pill.medium {
-  background-color: #ffa500;
+  background-color: var(--color-severity-medium);
 }
 
 .severity-pill.low {
-  background-color: #0033cc;
+  background-color: var(--color-severity-low);
 }
 
 .pagination {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
-  border-top: 2px solid var(--graph-color-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
 }
 
 .rows-per-page {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #374151;
+  color: var(--color-text-secondary);
 
 }
 
 .rows-per-page label{
   font-size: 14px;
-  color: #374151;
+  color: var(--color-text-secondary);
 }
 
 #rowsPerPage {
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 14px;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
-  color: #f9fafb;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
   height: 36px;
   width: 62px;
 }
@@ -486,7 +515,7 @@ thead {
 
 .pagination-info {
   font-size: 14px;
-  color: #374151;
+  color: var(--color-text-secondary);
 }
 
 .pagination-controls {
@@ -498,22 +527,21 @@ thead {
 .pagination-btn {
   width: 36px;
   height: 36px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid transparent;
-  border-color: var(--graph-color-3);
+  border: 1px solid var(--color-border);
   background: none;
-  color: #374151;
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background: var(--graph-color-3);
-  border-color: var(--graph-color-3);
-  color: #f9fafb
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
 }
 
 .pagination-btn:disabled {
@@ -529,29 +557,28 @@ thead {
 .page-btn {
   min-width: 36px;
   height: 36px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid transparent;
-  border-color: var(--graph-color-3);
+  border: 1px solid var(--color-border);
   background: none;
-  color: #374151;
+  color: var(--color-text-secondary);
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-normal);
 }
 
 .page-btn:hover {
-  background: var(--graph-color-3);
-  border-color: var(--graph-color-3);
-  color: #f9fafb;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
 }
 
 .page-btn.active {
-  background: var(--graph-color-3);
-  color: #f9fafb;
-  border-color: var(--graph-color-3);
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
 }
 
 </style>

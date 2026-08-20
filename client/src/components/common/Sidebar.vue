@@ -89,7 +89,7 @@
 import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '@/services/api'
-import logo from '@/assets/sc_logo2.png';
+import logo from '@/assets/sc_logo3.png';
 import ConfirmModal from './ConfirmModal.vue';
 import { useLogout } from '@/composables/useLogout';
 // import axios from 'axios';

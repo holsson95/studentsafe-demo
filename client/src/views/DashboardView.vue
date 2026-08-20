@@ -1,233 +1,163 @@
 <template>
-  <div class="flex">
-        <div class="dashboard-container">
-          <!-- Left Section: Stats and Notifs-->
-          <div class="left-section">
-              <div class="stat-column">
-                  <StatCard
-                  title="Reported Cases"
-                  :value="(Number(totalReported)|| 0) || 0"
-                  subtext="Daily"
-                  :data=reportedCasesData
-                  />
-                  <StatCard
-                  title="Resolved Cases"
-                  :value="Number(totalResolved) || 0"
-                  subtext="Daily"
-                  :data= resolvedCasesData
-                  />
-                  <StatCard
-                  title="Open Cases"
-                  :value="Number(totalOpen) || 0"
-                  subtext="Daily"
-                  :data= openCasesData
-                  />
-              </div>
-          
-          <div class="notification-section">
-              <NotificationPreview :notifications="previewNotifications" @expand="goToNotifications" @select="goToNotifications" />
-          </div>
+  <div class="dashboard-page">
+    <div class="page-header">
+      <div>
+        <h1 class="greeting">Good morning, {{ userName }}! 👋</h1>
+        <p class="greeting-subtext">Here's what's happening with student safety and wellbeing today.</p>
+      </div>
+      <div class="header-actions">
+        <div class="concern-toggle">
+            <button :class="{ active: activeConcern === 'Child Protection Concern' }" @click="setConcern('Child Protection Concern')">
+                <Icon icon="fluent:shield-person-20-regular" class="toggle-icon" /> Child Protection
+            </button>
+            <button :class="{ active: activeConcern === 'Counselling Concern' }" @click="setConcern('Counselling Concern')">
+                <Icon icon="picon:protect" class="toggle-icon" /> Counseling
+            </button>
         </div>
-        <!-- Right Section: In Progress and On Hold  -->
-        <div class="reports-section">
-          <ReportsSection />
-        </div>
+        <RouterLink to="/file-report" class="new-case-btn">
+          <Icon icon="line-md:plus" class="icon" /> New Case
+        </RouterLink>
+      </div>
     </div>
+
+    <DashboardCounselorPage :case-type-id="currentConcernId" :school-id="userSchoolId" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import api from '@/services/api';
-import NotificationPreview from '../components/notifications/NotificationPreview.vue';
-import StatCard from '../components/common/StatCard.vue'
-import ReportsSection from '../components/dashboard/ReportsSection.vue'
-import { useRouter } from 'vue-router';
+import { Icon } from '@iconify/vue'
+import api from '@/services/api'
+import DashboardCounselorPage from '../components/dashboard/DashboardCounselorPage.vue'
 
-const router = useRouter();
-const reportedCasesData = ref<number[]>([]);
-const resolvedCasesData = ref<number[]>([]);
-const openCasesData = ref<number[]>([]);
-const totalReported = ref<number>(0);
-const totalResolved = ref<number>(0);
-const totalOpen = ref<number>(0);
-
-
-const notifications = ref<any[]>([]);
-
-const fetchNotifications = async() => {
-  try{
-    const res = await api.get('/notifications');
-    notifications.value = res.data;
-  } catch (err){
-    console.error('Failed to fetch notifications', err);
-  }
-}
-
-const previewNotifications = computed(() => 
-  notifications.value.slice(0, 5)
-)
-
-function goToNotifications(id?: number) {
-  router.push({path: '/notifications', query: {highlight: id}});
-  console.log('Go to full notifications page');
-}
+const userName = ref('');
+const userSchoolId = ref<number>(0);
 
 onMounted(async () => {
-  fetchNotifications();
-
   try {
-
-    const res = await api.get(`/cases/case-counts?period=month`);
-    const { totals, timeSeries } = res.data;
-   
-    reportedCasesData.value = timeSeries.map((item: { total: any; }) => item.total);
-    resolvedCasesData.value = timeSeries.map((item: { resolved: any; }) => item.resolved);
-    openCasesData.value = timeSeries.map((item: { open: any; }) => item.open);
-
-    totalReported.value = totals.total_cases;
-    totalResolved.value = totals.total_resolved;
-    totalOpen.value = totals.total_open;
-    
-    
+    const res = await api.get('users/me');
+    const user = res.data;
+    userName.value = user.name;
+    userSchoolId.value = user.school_id;
   } catch (error) {
-    console.error('Failed to fetch data:', error);
+    console.error('Failed to fetch user info:', error);
   }
 });
 
+type ConcernType = 'Counselling Concern' | 'Child Protection Concern';
+
+const concernsMap: Record<ConcernType, number> = {
+  'Counselling Concern': 2,
+  'Child Protection Concern': 1,
+};
+
+const activeConcern = ref<ConcernType>('Counselling Concern');
+
+const currentConcernId = computed(() => concernsMap[activeConcern.value]);
+
+const setConcern = (concern: ConcernType) => {
+  activeConcern.value = concern;
+};
 </script>
 
 <style scoped>
-.flex {
-  width: 100%;
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
   height: calc(100vh - 60px);
-  overflow: hidden;
+  min-height: 0;
 }
 
-.dashboard-container {
+.page-header {
   display: flex;
-  flex-wrap: nowrap;
-  width: 100%;
-  height: 100%;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  margin-bottom: var(--space-2);
   gap: var(--space-4);
-  padding: var(--space-4);
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.left-section {
-  flex: 0 0 320px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  height: 100%;
-  min-width: 280px;
-  max-width: 360px;
-}
-
-.stat-column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  width: 100%;
   flex-shrink: 0;
 }
 
-.reports-section {
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  overflow: visible;
+.greeting {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
 }
 
-.notification-section {
-  flex: 1;
-  min-width: 0;
-  width: 100%;
-  overflow: hidden;
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-card-elevated);
-  padding: var(--space-2);
+.greeting-subtext {
+  margin: var(--space-1) 0 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .flex {
-    height: auto;
-    overflow: auto;
-  }
-
-  .dashboard-container {
-    flex-direction: column;
-    height: auto;
-    gap: var(--space-4);
-    overflow: visible;
-  }
-
-  .left-section {
-    flex: none;
-    flex-direction: row;
-    min-width: 0;
-    max-width: none;
-    height: auto;
-  }
-
-  .stat-column {
-    flex: 1;
-    height: auto;
-  }
-
-  .reports-section {
-    flex: none;
-    height: 60vh;
-  }
-
-  .notification-section {
-    flex: 1;
-    max-height: 300px;
-  }
+.header-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
-  .dashboard-container {
-    padding: var(--space-3);
-    gap: var(--space-3);
-  }
-
-  .left-section {
-    flex-direction: column;
-  }
-
-  .stat-column {
-    flex-direction: row;
-    overflow-x: auto;
-    padding-bottom: var(--space-2);
-    gap: var(--space-3);
-  }
-
-  .stat-column > * {
-    min-width: 280px;
-    flex-shrink: 0;
-  }
-
-  .notification-section {
-    padding: var(--space-4);
-    max-height: none;
-  }
+.concern-toggle {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-full);
+  padding: 3px;
 }
 
-@media (max-width: 480px) {
-  .stat-column {
-    flex-direction: column;
-  }
+.concern-toggle button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  border: none;
+  background: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
 
-  .stat-column > * {
-    min-width: auto;
-  }
+.concern-toggle button.active {
+  background: var(--color-primary);
+  color: #ffffff;
+  font-weight: var(--font-weight-semibold);
+  box-shadow: var(--shadow-sm);
+}
 
-  .dashboard-container {
-    gap: var(--space-2);
-    padding: var(--space-2);
-  }
+.concern-toggle button:not(.active):hover {
+  color: var(--color-text-primary);
+}
+
+.toggle-icon {
+  font-size: 16px;
+}
+
+.new-case-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: background-color var(--transition-normal);
+  white-space: nowrap;
+}
+
+.new-case-btn:hover {
+  background-color: var(--color-primary-hover);
 }
 </style>
